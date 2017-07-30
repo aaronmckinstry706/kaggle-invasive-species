@@ -64,7 +64,7 @@ def resize_and_center_crop(desired_width):
         image = misc.imresize(image, size=tuple(new_dimensions))
         
         max_length = max(new_dimensions[0], new_dimensions[1])
-        start_index = int(math.floor((max_length - 512)/2.0))
+        start_index = int(math.floor((max_length - desired_width)/2.0))
         
         if min_dim == 0:
             return image[:,start_index:start_index+desired_width,:]
@@ -72,4 +72,3 @@ def resize_and_center_crop(desired_width):
             return image[start_index:start_index+desired_width,:,:]
     
     return function
-

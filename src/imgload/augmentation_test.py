@@ -12,7 +12,7 @@ class PreprocessingTest(unittest.TestCase):
         unittest.TestCase.setUp(self)
         self.training_directory = defs.UNIT_TEST_RESOURCE_ROOT_DIR + '/data/train'
         self.test_directory = defs.UNIT_TEST_RESOURCE_ROOT_DIR + '/data/test'
-        self.image_width = 512
+        self.image_width = 182
         self.batch_size = 4
         self.num_labels = len(utils.get_labels(self.training_directory))
     
