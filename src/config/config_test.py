@@ -2,14 +2,15 @@ import os
 import unittest
 
 import config
+import definitions as defs
 
 class TestConfig(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        cls.xml_test_file = 'test_config_xml'
-        file = open(cls.xml_test_file, 'w')
-        file.write('<?xml version="1.0"?>'
+        cls.xml_test_file = defs.UNIT_TEST_RESOURCE_ROOT_DIR + '/test_config_xml'
+        test_file = open(cls.xml_test_file, 'w')
+        test_file.write('<?xml version="1.0"?>'
                    '<config>'
                    '<int_param type="int">12</int_param>'
                    '<float_param type="float">12.25</float_param>'
@@ -17,7 +18,7 @@ class TestConfig(unittest.TestCase):
                    '<no_type_param>string</no_type_param>'
                    '<bad_type_param type="bad">string</bad_type_param>'
                    '</config>')
-        file.close()
+        test_file.close()
     
     @classmethod
     def tearDownClass(cls):
