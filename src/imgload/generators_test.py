@@ -52,20 +52,29 @@ class GeneratorsTest(unittest.TestCase):
         self.assertTrue(
             any(['img_00120.jpg' in path
                  for path in test_generator.filenames]))
-        batches = 0
-        for images in test_generator:
+        for batch, images in enumerate(test_generator):
             self.assertTupleEqual((self.batch_size, self.image_width,
                                    self.image_width, 3), images.shape)
-            batches += 1
-            if batches == 30:
+            if batch == 30:
                 break
     
-    def test_get_threaded_generator__one_thread(self):
-        training_generator = gen.get_generator(
+    def test_get_threaded_generator__test_generator(self):
+        training_generator = gen.get_test_generator(
             self.training_directory,
             self.image_width,
-            self.batch_size,
-            gen_type='training')
+            self.batch_size)
+        threaded_generator = gen.get_threaded_generator(
+            training_generator, len(training_generator.filenames),
+            num_threads=1)
+        for images in threaded_generator:
+            self.assertTupleEqual((self.batch_size, self.image_width,
+                                   self.image_width, 3), images.shape)
+    
+    def test_get_threaded_generator__one_thread(self):
+        training_generator = gen.get_training_generator(
+            self.training_directory,
+            self.image_width,
+            self.batch_size)
         threaded_generator = gen.get_threaded_generator(
             training_generator, len(training_generator.filenames),
             num_threads=1)
@@ -76,11 +85,10 @@ class GeneratorsTest(unittest.TestCase):
                                   labels.shape)
 
     def test_get_threaded_generator__eight_threads(self):
-        training_generator = gen.get_generator(
+        training_generator = gen.get_training_generator(
             self.training_directory,
             self.image_width,
-            self.batch_size,
-            gen_type='training')
+            self.batch_size)
         threaded_generator = gen.get_threaded_generator(
             training_generator, len(training_generator.filenames),
             num_threads=1)
