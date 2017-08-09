@@ -21,7 +21,7 @@ In my architectures and training methods for this competition, I'll be attemptin
 My first attempt will be as follows:
 1. obtain auxiliary image data from [leafsnap](http://leafsnap.com/dataset/) and [LifeCLEF](http://www.imageclef.org/lifeclef/2016/plant);
 2. choose an architecture which performed well on ImageNet (for simplicity, I'll be using a deep all-convolutional network here);
-3. pre-train that architecture by providing gaussian-noise labels on each image in the auxiliary training data;
-4. use the output of the pre-trained architecture (or its second-to-last-layer, more likely) as features for a linear classifier. 
+3. pre-train that architecture by providing random labels for each image in the auxilliary dataset;
+4. fine-tune the weights by training on the auxiliary data. 
 
-I got this idea from a paper. I've searched like a madman for that paper, but could not find it. I'll update this if I find it. As for now, off to coding!
+I got this idea from [Understanding Deep Learning Requires Rethinking Generalization](https://arxiv.org/pdf/1611.03530.pdf), where Bengio et al. show that successful architectures--without any form of regularization--can fit a random labelling of the test set. My intuition (theory?) is that, even with a random labelling of the auxilliary data, the network will still learn good high-level features which can be exploited during fine-tuning. 
