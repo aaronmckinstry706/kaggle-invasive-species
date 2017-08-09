@@ -24,8 +24,8 @@ class TestConfig(unittest.TestCase):
     def tearDownClass(cls):
         os.remove(TestConfig.xml_test_file)
 
-    def testReadConfigFile(self):
-        config_params = config.read_config_file(self.xml_test_file)
+    def testReadParamXmlFile(self):
+        config_params = config.read_param_xml_file(self.xml_test_file)
         expected_dict = {
             'int_param': 12,
             'float_param': 12.25,

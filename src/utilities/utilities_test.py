@@ -25,14 +25,6 @@ class UtilitiesTest_PathReaders(unittest.TestCase):
         self.assertTrue('img_00325.jpg' in relative_paths[1])
         self.assertTrue('img_00348.jpg' in relative_paths[2])
     
-    def test_get_learning_rate(self):
-        with open('learning_rate.input', 'w') as lri:
-            lri.write('')
-        self.assertEqual(1.0, utils.get_learning_rate(None, None, 1.0))
-        with open('learning_rate.input', 'w') as lri:
-            lri.write(str(2.0))
-        self.assertEqual(2.0, utils.get_learning_rate(None, None, 1.0))
-
 class UtilitiesTest_FileMovers(unittest.TestCase):
     
     def setUp(self):
