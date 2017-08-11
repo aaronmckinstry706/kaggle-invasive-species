@@ -130,6 +130,14 @@ def get_relative_paths(root_directory):
         relative_file_paths.extend(valid_file_paths)
     return relative_file_paths
 
+def randomly_divide_pretraining_data(pretraining_dir, destination_dir):
+    """Takes the pretraining data and puts it into two different directories:
+    project_root/data/pretraining/0, and project_root/data/pretraining/1. Each
+    image is randomly put into one of the two directories. 
+    """
+    # TODO: Write this function.
+    pass
+
 def separate_validation_set(training_dir, validation_dir, split=0.1):
     training_dir = os.path.relpath(training_dir, ".")
     validation_dir = os.path.relpath(validation_dir, ".")
