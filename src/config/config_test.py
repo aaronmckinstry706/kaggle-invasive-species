@@ -34,6 +34,7 @@ class TestConfig(unittest.TestCase):
             'bad_type_param': 'string'
         }
         self.assertDictEqual(expected_dict, config_params)
+        self.assertEqual(None, config_params['nonexistant_param'])
 
 if __name__ == "__main__":
     unittest.main()

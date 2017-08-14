@@ -20,11 +20,11 @@ def read_param_xml_file(file_path):
     type casting function on the text within the param element. It is equivalent
     to the below definition--except for invalid type_conversion_function values,
     which are handled as described above. 
-        {
-            "param1": type_conversion_function1("value1"),
-            ...,
-            "paramN": type_conversion_functionN("valueN")
-        }
+        collections.defaultdict(
+            lambda: None,
+            {"param1": type_conversion_function1("value1"),
+             ...,
+             "paramN": type_conversion_functionN("valueN")})
     
     Arguments:
     file_path -- the location of the param file (relative or absolute). 
@@ -45,4 +45,4 @@ def read_param_xml_file(file_path):
         param_type = child.attrib.get('type') or 'str'
         type_cast = type_cast_functions[param_type]
         params[child.tag] = type_cast(child.text)
-    return params
+    return collections.defaultdict(lambda: None, params)
