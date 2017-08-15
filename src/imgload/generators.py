@@ -82,7 +82,7 @@ def get_threaded_generator(image_data_generator, num_data_points, num_threads=1)
 
     # Start producers in background threads.
     threads = [threading.Thread(target=producer)
-               for i in range(0, num_threads)]
+               for i in range(num_threads)]
     for thread in threads:
         thread.start()
     

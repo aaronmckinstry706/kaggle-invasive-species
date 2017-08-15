@@ -92,6 +92,8 @@ def display_history(training_loss_history, validation_loss_history,
     
     pyplot.pause(0.0001)
 
+# TODO: Make this whole module use absolute paths for all directories/images.
+
 def get_labels(train_directory):
     """Gets a list of all directory names in the training directory. Each
     directory name is a label.
