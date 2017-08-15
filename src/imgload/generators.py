@@ -84,7 +84,6 @@ def get_threaded_generator(image_data_generator, num_data_points, num_threads=1)
     threads = [threading.Thread(target=producer)
                for i in range(0, num_threads)]
     for thread in threads:
-        thread.daemon = True
         thread.start()
     
     def get_image_count(item):
