@@ -1,4 +1,5 @@
 import os
+import os.path as path
 import random
 
 import matplotlib.pyplot as pyplot
@@ -92,8 +93,6 @@ def display_history(training_loss_history, validation_loss_history,
     
     pyplot.pause(0.0001)
 
-# TODO: Make this whole module use absolute paths for all directories/images.
-
 def get_labels(train_directory):
     """Gets a list of all directory names in the training directory. Each
     directory name is a label.
@@ -107,10 +106,10 @@ def get_labels(train_directory):
     labels.sort() # Just for deterministic behavior in unit tests.
     return labels
 
-def get_relative_paths(root_directory):
+def get_absolute_paths(root_directory):
     """Gets a list of all path names in root_directory that have extension
-    '.jpg'. Any returned path will be relative to the current working
-    directory.
+    '.jpg'. All returned paths are absolute. 
+    
     Args:
         root_directory -- The path for the directory that will be searched.
         file_extension -- A string containing a file extension used to
@@ -122,44 +121,60 @@ def get_relative_paths(root_directory):
         included.
     """
     file_extension = '.jpg'
-    relative_file_paths = []
+    file_paths = []
     for directory, _, file_names in os.walk(root_directory):
         valid_file_names = (
                 name for name in file_names
                 if name[-len(file_extension):] == file_extension)
-        valid_file_paths = (os.path.relpath(directory + '/' + name, '.')
+        valid_file_paths = (path.abspath(directory + '/' + name)
                             for name in valid_file_names)
-        relative_file_paths.extend(valid_file_paths)
-    return relative_file_paths
+        file_paths.extend(valid_file_paths)
+    return file_paths
 
-def randomly_divide_pretraining_data(pretraining_dir, destination_dir):
-    """Takes the pretraining data and puts it into two different directories:
+def randomly_divide_pretraining_data(src_dir, destination_dir):
+    """Takes the pretraining data and copies it into two different directories:
     project_root/data/pretraining/0, and project_root/data/pretraining/1. Each
     image is randomly put into one of the two directories. 
     """
-    # TODO: Write this function.
-    pass
+    src_dir = path.abspath(src_dir)
+    destination_dir = path.abspath(destination_dir)
+    for subdir in ['0', '1']:
+        subdir_path = destination_dir + '/' + subdir
+        if not path.exists(subdir_path):
+            os.makedirs(subdir_path)
+    for image_path in get_absolute_paths(src_dir):
+        image_name = path.basename(image_path)
+        destination_image_path = (destination_dir + "/"
+                                  + str(random.randint(0, 1)) + "/"
+                                  + image_name)
+        os.system("mv " + image_path + " " + destination_image_path)
 
 def separate_validation_set(training_dir, validation_dir, split=0.1):
-    training_dir = os.path.relpath(training_dir, ".")
-    validation_dir = os.path.relpath(validation_dir, ".")
+    training_dir = path.abspath(training_dir)
+    validation_dir = path.abspath(validation_dir)
     labels = get_labels(training_dir)
+    for label in labels:
+        validation_label_path = validation_dir + '/' + label
+        if not path.exists(validation_label_path):
+            os.makedirs(validation_label_path)
     label_paths = [training_dir + '/' + label for label in labels]
     for label_path in label_paths:
-        image_paths = get_relative_paths(label_path)
-        validation_paths = random.sample(image_paths,
-                                         int(split*len(image_paths)))
-        for validation_path in validation_paths:
-            os.system("mv " + validation_path + " "
-                      + validation_path.replace(training_dir, validation_dir))
+        image_paths = get_absolute_paths(label_path)
+        validation_image_paths = random.sample(
+            image_paths, int(split*len(image_paths)))
+        for validation_image_path in validation_image_paths:
+            image_destination_path = validation_image_path.replace(
+                training_dir, validation_dir)
+            os.system(
+                "mv " + validation_image_path + " " + image_destination_path)
 
 def recombine_validation_and_training(validation_dir, training_dir):
-    training_dir = os.path.relpath(training_dir, ".")
-    validation_dir = os.path.relpath(validation_dir, ".")
-    paths = get_relative_paths(validation_dir)
-    for path in paths:
-        os.system("mv " + path + " "
-                  + path.replace(validation_dir, training_dir))
+    training_dir = path.abspath(training_dir)
+    validation_dir = path.abspath(validation_dir)
+    image_paths = get_absolute_paths(validation_dir)
+    for image_path in image_paths:
+        os.system("mv " + image_path + " "
+                  + image_path.replace(validation_dir, training_dir))
 
 if __name__ == '__main__':
     recombine_validation_and_training('data/validation', 'data/train')

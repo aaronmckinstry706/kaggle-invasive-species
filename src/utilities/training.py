@@ -27,6 +27,13 @@ def train_network(metaparams, train, validate, pretrain):
                  This callable is what actually trains the network. 
     """
     
+    if pretrain:
+        training_directory = defs.PRETRAINING_DATA_DIR
+        validation_directory = defs.PRETRAINING_VALIDATION_DATA_DIR
+    else:
+        training_directory = defs.TRAINING_DATA_DIR
+        validation_directory = defs.VALIDATION_DATA_DIR
+    
     # Keep record of various metrics as the network is training. 
     
     previous_validation_losses = []
@@ -41,7 +48,10 @@ def train_network(metaparams, train, validate, pretrain):
     # Train the network, while graphing the metrics in real time.
     
     logging.info(str(metaparams))
-    logging.info('Training network.')
+    if pretrain:
+        logging.info('Pretraining network.')
+    else:
+        logging.info('Training network.')
     logging.info('Beginning run at ' + str(datetime.datetime.now()) + '.')
     
     pyplot.ion()
@@ -55,7 +65,7 @@ def train_network(metaparams, train, validate, pretrain):
         # Train.
         
         training_generator = generators.get_training_generator(
-            defs.TRAINING_DATA_DIR,
+            training_directory,
             metaparams['image_width'],
             metaparams['batch_size'])
         
@@ -71,9 +81,11 @@ def train_network(metaparams, train, validate, pretrain):
             previous_training_losses.append(current_training_loss + 0.0)
             previous_gradient_norms.append(numpy.asscalar(current_gradient_norm))
             iteration += 1
+            if iteration >= metaparams['iterations']:
+                break
         
         validation_generator = generators.get_validation_generator(
-            defs.VALIDATION_DATA_DIR,
+            validation_directory,
             metaparams['image_width'],
             metaparams['batch_size'])
         
@@ -99,17 +111,18 @@ def train_network(metaparams, train, validate, pretrain):
         
         # Update best validation loss, best parameters, and patience. 
         
-        if current_validation_loss < best_validation_loss:
-            best_validation_loss = current_validation_loss
-            #current_network_params = layers.get_all_params(network)
-            #best_network_params = layers.get_all_params(best_network)
-            # Set best_network to current network parameters
-            #for j in range(len(best_network_params)):
-            #    best_network_params[j].set_value(
-            #        current_network_params[j].get_value())
-            remaining_patience = metaparams['patience']
-        else:
-            remaining_patience = remaining_patience - 1
+        if not pretrain:
+            if current_validation_loss < best_validation_loss:
+                best_validation_loss = current_validation_loss
+                #current_network_params = layers.get_all_params(network)
+                #best_network_params = layers.get_all_params(best_network)
+                # Set best_network to current network parameters
+                #for j in range(len(best_network_params)):
+                #    best_network_params[j].set_value(
+                #        current_network_params[j].get_value())
+                remaining_patience = metaparams['patience']
+            else:
+                remaining_patience = remaining_patience - 1
         
         # Update graph of various metrics, and log metrics for current epoch.
     
@@ -143,5 +156,3 @@ def train_network(metaparams, train, validate, pretrain):
     
     pyplot.ioff()
     pyplot.close('all')
-
-# TODO: Add pretraining function. 

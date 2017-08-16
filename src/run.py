@@ -1,4 +1,6 @@
 import logging
+import os
+import os.path as path
 
 import lasagne
 import lasagne.layers as layers
@@ -83,18 +85,29 @@ if __name__ == '__main__':
     
     # Reset leftover stuff from earlier runs. 
     
-    logging.info('Cleaning up training/validation split from previous runs.')
+    logging.info('Assigning random labels to pretraining data.')
+    utils.randomly_divide_pretraining_data(defs.PRETRAINING_SOURCE_DIR, defs.PRETRAINING_DATA_DIR)
+    
+    logging.info('Cleaning up training/validation splits from previous runs.')
     utils.recombine_validation_and_training(defs.VALIDATION_DATA_DIR,
                                             defs.TRAINING_DATA_DIR)
+    utils.recombine_validation_and_training(defs.PRETRAINING_VALIDATION_DATA_DIR,
+                                            defs.PRETRAINING_DATA_DIR)
     
-    logging.info('Splitting training and validation images.')
+    logging.info('Splitting training and validation images for training and pretraining.')
     utils.separate_validation_set(defs.TRAINING_DATA_DIR,
                                   defs.VALIDATION_DATA_DIR,
                                   split=metaparams['validation_split'])
-    
-    
+    utils.separate_validation_set(defs.PRETRAINING_DATA_DIR,
+                                  defs.PRETRAINING_VALIDATION_DATA_DIR,
+                                  split=metaparams['pretraining_validation_split'])
     
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,
                            pretrain=True)
+    
+    training.train_network(metaparams=metaparams,
+                           train=train,
+                           validate=validate,
+                           pretrain=False)

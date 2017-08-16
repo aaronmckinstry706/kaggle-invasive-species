@@ -23,3 +23,4 @@ if __name__ == '__main__':
         image_destination_path = \
             defs.TRAINING_DATA_DIR + '/' + image_label + '/' + image_name
         os.system("mv " + image_path + " " + image_destination_path)
+    os.remove(labels_csv_path)

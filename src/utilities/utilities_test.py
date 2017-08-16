@@ -1,3 +1,5 @@
+import os
+import os.path as path
 import unittest
 
 import definitions as defs
@@ -17,7 +19,7 @@ class UtilitiesTest_PathReaders(unittest.TestCase):
             ["DOL", "LAG"])
     
     def test_get_relative_paths(self):
-        relative_paths = utils.get_relative_paths(
+        relative_paths = utils.get_absolute_paths(
             self.training_directory)
         self.assertEqual(184, len(relative_paths))
         relative_paths.sort()
@@ -31,6 +33,23 @@ class UtilitiesTest_FileMovers(unittest.TestCase):
         unittest.TestCase.setUp(self)
         self.training_directory = defs.UNIT_TEST_RESOURCE_ROOT_DIR + '/data/train'
         self.validation_directory = defs.UNIT_TEST_RESOURCE_ROOT_DIR + '/data/validation'
+        self.pretrain_directory = defs.UNIT_TEST_RESOURCE_ROOT_DIR + '/data/pretrain'
+        self.pretrain_src_directory = defs.UNIT_TEST_RESOURCE_ROOT_DIR + '/data/pretrain_src'
+    
+    def undo_pretraining_division(self):
+        source_paths = utils.get_absolute_paths(self.pretrain_directory)
+        for source_path in source_paths:
+            destination_path = self.pretrain_src_directory + "/" + path.basename(source_path)
+            os.system("mv " + source_path + " " + destination_path)
+    
+    def test_randomly_divide_pretraining_data(self):
+        original_file_names = set(
+            [path.basename(p) for p in utils.get_absolute_paths(self.pretrain_src_directory)])
+        utils.randomly_divide_pretraining_data(self.pretrain_src_directory, self.pretrain_directory)
+        actual_file_names = set(
+            [path.basename(p) for p in utils.get_absolute_paths(self.pretrain_directory)])
+        self.assertSetEqual(original_file_names, actual_file_names)
+        self.undo_pretraining_division()
     
     def test00_separate_validation_set_splitOne(self):
         utils.separate_validation_set(self.training_directory,
@@ -38,11 +57,11 @@ class UtilitiesTest_FileMovers(unittest.TestCase):
                                           1.0)
         self.assertEqual(
             0,
-            len(utils.get_relative_paths(self.training_directory)))
+            len(utils.get_absolute_paths(self.training_directory)))
         self.assertEqual(
             184,
             len(
-                utils.get_relative_paths(
+                utils.get_absolute_paths(
                     self.validation_directory)))
     
     def test01_recombine_validation_and_training_splitOne(self):
@@ -51,11 +70,11 @@ class UtilitiesTest_FileMovers(unittest.TestCase):
             self.training_directory)
         self.assertEqual(
             184,
-            len(utils.get_relative_paths(self.training_directory)))
+            len(utils.get_absolute_paths(self.training_directory)))
         self.assertEqual(
             0,
             len(
-                utils.get_relative_paths(
+                utils.get_absolute_paths(
                     self.validation_directory)))
     
     def test10_separate_validation_set_splitQuarter(self):
@@ -64,11 +83,11 @@ class UtilitiesTest_FileMovers(unittest.TestCase):
                                           split=0.25)
         self.assertEqual(
             139,
-            len(utils.get_relative_paths(self.training_directory)))
+            len(utils.get_absolute_paths(self.training_directory)))
         self.assertEqual(
             45,
             len(
-                utils.get_relative_paths(
+                utils.get_absolute_paths(
                     self.validation_directory)))
     
     def test11_recombine_validation_and_training_splitQuarter(self):
@@ -77,9 +96,9 @@ class UtilitiesTest_FileMovers(unittest.TestCase):
             self.training_directory)
         self.assertEqual(
             184,
-            len(utils.get_relative_paths(self.training_directory)))
+            len(utils.get_absolute_paths(self.training_directory)))
         self.assertEqual(
             0,
             len(
-                utils.get_relative_paths(
+                utils.get_absolute_paths(
                     self.validation_directory)))
