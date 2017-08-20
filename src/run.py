@@ -1,8 +1,5 @@
 import logging
-import os
-import os.path as path
 
-import lasagne
 import lasagne.layers as layers
 import lasagne.objectives as objectives
 import lasagne.regularization as regularization
@@ -15,6 +12,7 @@ import config.config as config
 import definitions as defs
 import utilities.training as training
 import utilities.utilities as utils
+import utilities.architectures as architectures
 
 if __name__ == '__main__':
     
@@ -27,20 +25,7 @@ if __name__ == '__main__':
     
     input_batch = tensor.tensor4(name="image_batch")
     
-    network = layers.InputLayer(
-        input_var=input_batch,
-        shape=(None, 3, metaparams['image_width'], metaparams['image_width']),
-        name="input")
-    network = layers.Conv2DLayer(
-        incoming=network,
-        num_filters=2,
-        filter_size=(3,3))
-    network = layers.GlobalPoolLayer(
-        incoming=network,
-        pool_function=tensor.max)
-    network = layers.NonlinearityLayer(
-        incoming=network,
-        nonlinearity=lasagne.nonlinearities.softmax)
+    network = architectures.all_cnn_c_model(input_var=input_batch)
     
     training_output_batch = layers.get_output(network, deterministic=False)
     testing_output_batch = layers.get_output(network, deterministic=True)
@@ -105,9 +90,11 @@ if __name__ == '__main__':
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,
-                           pretrain=True)
+                           pretrain=True,
+                           learning_rate=learning_rate)
     
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,
-                           pretrain=False)
+                           pretrain=False,
+                           learning_rate=learning_rate)

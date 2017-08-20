@@ -10,23 +10,30 @@ import imgload.generators as generators
 import utilities as utils
 
 # TODO: Add (...network, best_network) as parameters; store best network params.
-def train_network(metaparams, train, validate, pretrain):
+def train_network(metaparams, train, validate, pretrain, learning_rate):
     """Takes in a parameter dict, a training function, and a validation function
     and then trains the network. 
     
     Args:
         metaparams -- A dictionary of parameters. Must have the following:
                           'patience' (nonnegative int),
-                          'iterations' (positive int),
+                          'epochs' (positive int),
                           'image_width' (positive int),
                           'batch_size' (positive int), and
                           'threads' (positive int). 
+        
         train -- A callable that takes as inputs:
                      1) a numpy array of 3-color-channel images, and
                      2) a numpy array of 1-dimensional image labels. 
                  This callable is what actually trains the network. 
+        
+        validate -- A callable that takes the same inputs as the train function. 
+        
+        pretrain -- If this is meant to pretrain a network, True. Otherwise, False. 
+        
+        learning_rate -- A Theano symbolic scalar (must be shared variable), which controls the
+                         learning rate used in the train function's weight updates.
     """
-    
     if pretrain:
         training_directory = defs.PRETRAINING_DATA_DIR
         validation_directory = defs.PRETRAINING_VALIDATION_DATA_DIR
@@ -57,9 +64,18 @@ def train_network(metaparams, train, validate, pretrain):
     pyplot.ion()
     pyplot.figure(figsize=(6, 8))
     
+    learning_rate.set_value(numpy.float32(metaparams['learning_rate']))
+    
     iteration = 0
     epoch = 0
-    while iteration < metaparams['iterations']:
+    while epoch < metaparams['epochs']:
+        # Taking from https://github.com/Lasagne/Recipes/blob/master/papers/densenet/train_test.py,
+        # we will divide learning rate by 10 at 50% and 75% through the total number of epochs.
+        if epoch == int(0.5*metaparams['epochs']):
+            learning_rate.set_value(numpy.float32(learning_rate.get_value()/10.0))
+        elif epoch == int(0.75*metaparams['epochs']):
+            learning_rate.set_value(numpy.float32(learning_rate.get_value()/10.0))
+        
         epoch_start_time = time.time()
         
         # Train.
@@ -81,8 +97,6 @@ def train_network(metaparams, train, validate, pretrain):
             previous_training_losses.append(current_training_loss + 0.0)
             previous_gradient_norms.append(numpy.asscalar(current_gradient_norm))
             iteration += 1
-            if iteration >= metaparams['iterations']:
-                break
         
         validation_generator = generators.get_validation_generator(
             validation_directory,
