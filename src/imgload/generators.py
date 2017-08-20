@@ -13,11 +13,11 @@ def get_training_generator(directory, desired_width, batch_size):
     labels. 
     """
     training_generator = image.ImageDataGenerator(
-        rotation_range=15.0,
-        zoom_range=[1.0, math.sqrt(2)*math.cos(math.pi/4 - 15.0/180.0*math.pi)],
-        horizontal_flip=True,
-        vertical_flip=True,
-        preprocessing_function=aug.resize_and_random_crop(desired_width))
+#        rotation_range=15.0,
+#        zoom_range=[1.0, math.sqrt(2)*math.cos(math.pi/4 - 15.0/180.0*math.pi)],
+        horizontal_flip=True)
+#        vertical_flip=True,
+#        preprocessing_function=aug.resize_and_random_crop(desired_width))
     return training_generator.flow_from_directory(
         directory, batch_size=batch_size,
         target_size=(desired_width, desired_width), 
@@ -28,8 +28,8 @@ def get_validation_generator(directory, desired_width, batch_size):
     yields resized and center-cropped images from the validation dataset, as
     well as their labels. 
     """
-    validation_generator = image.ImageDataGenerator(
-        preprocessing_function=aug.resize_and_center_crop(desired_width))
+    validation_generator = image.ImageDataGenerator()
+#        preprocessing_function=aug.resize_and_center_crop(desired_width))
     return validation_generator.flow_from_directory(
         directory, batch_size=batch_size,
         target_size=(desired_width, desired_width), shuffle=False)
@@ -38,8 +38,8 @@ def get_test_generator(directory, desired_width, batch_size):
     """Convenience function for returning the testing data generator G. G yields
     resized and center-cropped images from the testing dataset. 
     """
-    test_generator = image.ImageDataGenerator(
-        preprocessing_function=aug.resize_and_center_crop(desired_width))
+    test_generator = image.ImageDataGenerator()
+#        preprocessing_function=aug.resize_and_center_crop(desired_width))
     return test_generator.flow_from_directory(
         directory, batch_size=batch_size, class_mode=None,
         target_size=(desired_width, desired_width), shuffle=False)

@@ -39,7 +39,7 @@ if __name__ == '__main__':
             training_output_batch,
             label_batch)) / metaparams['batch_size']
     training_loss_batch = (unregularized_training_loss_batch
-        + regularization.regularize_network_params(network, regularization.l2))
+        + 0.001*regularization.regularize_network_params(network, regularization.l2))
     
     validation_loss_batch = tensor.sum(
         objectives.categorical_crossentropy(testing_output_batch, label_batch))

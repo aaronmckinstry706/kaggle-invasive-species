@@ -62,6 +62,7 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
     logging.info('Beginning run at ' + str(datetime.datetime.now()) + '.')
     
     pyplot.ion()
+    pyplot.close('all')
     pyplot.figure(figsize=(6, 8))
     
     learning_rate.set_value(numpy.float32(metaparams['learning_rate']))
@@ -145,7 +146,7 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
             previous_validation_losses,
             previous_gradient_norms,
             variance_window=25,
-            recent_window=50)
+            recent_window=1000)
         
         logging.info('Epoch ' + str(epoch) + ': '
                     + 'Crossentropy loss over validation set = '
@@ -169,4 +170,3 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
     logging.info('Ending run at ' + str(datetime.datetime.now()) + '.')
     
     pyplot.ioff()
-    pyplot.close('all')
