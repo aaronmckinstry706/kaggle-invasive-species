@@ -10,7 +10,7 @@ import imgload.generators as generators
 import utilities as utils
 
 # TODO: Add (...network, best_network) as parameters; store best network params.
-def train_network(metaparams, train, validate, pretrain, learning_rate):
+def train_network(metaparams, train, validate, validate_accuracy, pretrain, learning_rate):
     """Takes in a parameter dict, a training function, and a validation function
     and then trains the network. 
     
@@ -29,6 +29,8 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
         
         validate -- A callable that takes the same inputs as the train function. 
         
+        validate_accuracy -- A callable that takes the same inputs as the train function.
+        
         pretrain -- If this is meant to pretrain a network, True. Otherwise, False. 
         
         learning_rate -- A Theano symbolic scalar (must be shared variable), which controls the
@@ -46,6 +48,7 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
     previous_validation_losses = []
     previous_training_losses = []
     previous_gradient_norms = []
+    previous_validation_accuracies = []
     
     # Use the Early Stopping technique for determining when to end training.
     
@@ -113,16 +116,22 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
         
         # Validate.
         
-        current_validation_loss = 0
-        example_count = 0
+        current_validation_loss = 0.0
+        current_validation_accuracy = 0.0
+        example_count = 0.0
         for images_labels in threaded_validation_generator:
-            outputs, validation_loss = validate(numpy.moveaxis(images_labels[0],
-                                                               3, 1),
+            outputs, validation_accuracy = validate_accuracy(numpy.moveaxis(images_labels[0], 3, 1),
+                                                             images_labels[1])
+            current_validation_accuracy += validation_accuracy
+            outputs, validation_loss = validate(numpy.moveaxis(images_labels[0], 3, 1),
                                                 images_labels[1])
             current_validation_loss += numpy.sum(validation_loss)
             example_count += images_labels[0].shape[0]
         current_validation_loss = current_validation_loss / example_count
         previous_validation_losses.append((iteration, current_validation_loss))
+        current_validation_accuracy = current_validation_accuracy / example_count
+        previous_validation_accuracies.append((iteration, current_validation_accuracy))
+        
         
         # Update best validation loss, best parameters, and patience. 
         
@@ -144,6 +153,7 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
         utils.display_history(
             previous_training_losses,
             previous_validation_losses,
+            previous_validation_accuracies,
             previous_gradient_norms,
             variance_window=25,
             recent_window=1000)
@@ -155,7 +165,10 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
                     + str(current_training_loss) + ', '
                     + 'Time = '
                     + str(int(round(epoch_end_time - epoch_start_time)))
-                    + ' seconds.')
+                    + ' seconds, '
+                    + 'Accuracy over validation set = '
+                    + str(current_validation_accuracy)
+                    + '.')
         
         epoch += 1
         if remaining_patience == 0:
@@ -167,6 +180,8 @@ def train_network(metaparams, train, validate, pretrain, learning_rate):
     logging.info('Validation loss after each epoch, indexed by iteration: '
                 + str(previous_validation_losses))
     logging.info('Gradient norms per iteration: ' + str(previous_gradient_norms))
+    logging.info('Validation accuracy after each epoch, indexed by iteration: '
+                 + str(previous_validation_accuracies))
     logging.info('Ending run at ' + str(datetime.datetime.now()) + '.')
     
     pyplot.ioff()

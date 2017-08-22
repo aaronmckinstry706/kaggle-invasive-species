@@ -5,7 +5,7 @@ import random
 import matplotlib.pyplot as pyplot
 import numpy
 
-def display_history(training_loss_history, validation_loss_history,
+def display_history(training_loss_history, validation_loss_history, validation_accuracy_history,
                     gradient_history, variance_window=20, recent_window=100):
     NUM_PLOT_ROWS = 3
     NUM_PLOT_COLUMNS = 2
@@ -88,6 +88,24 @@ def display_history(training_loss_history, validation_loss_history,
         pyplot.ylabel('Gradient variance of ' + str(variance_window) + ' previous iterations')
         pyplot.xlim(xmin=0)
         pyplot.ylim(ymin=0)
+    
+    # Training/validation losses.
+    pyplot.subplot(NUM_PLOT_ROWS, NUM_PLOT_COLUMNS, 6)
+    
+    pyplot.title('Accuracy')
+    pyplot.xlabel('Iteration')
+    pyplot.ylabel('Accuracy at iteration')
+    
+    validation_accuracy_x = [validation_accuracy_history[i][0]
+                         for i in range(len(validation_accuracy_history))]
+    validation_accuracy_y = [validation_accuracy_history[i][1]
+                         for i in range(len(validation_accuracy_history))]
+    pyplot.plot(validation_accuracy_x, validation_accuracy_y)
+
+    pyplot.xlim(xmin=0)
+    pyplot.ylim(ymin=0, ymax=1)
+    
+    # Adjust spacing; then pause so display has time to update.
     
     pyplot.gcf().subplots_adjust(hspace=1.0)
     

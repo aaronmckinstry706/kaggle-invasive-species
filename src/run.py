@@ -41,6 +41,10 @@ if __name__ == '__main__':
     training_loss_batch = (unregularized_training_loss_batch
         + 0.001*regularization.regularize_network_params(network, regularization.l2))
     
+    # Technically not accuracy; just number correct out of the batch.
+    validation_accuracy_batch = tensor.sum(
+        tensor.eq(tensor.argmax(testing_output_batch, axis=1), tensor.argmax(label_batch, axis=1)))
+    
     validation_loss_batch = tensor.sum(
         objectives.categorical_crossentropy(testing_output_batch, label_batch))
     
@@ -67,6 +71,9 @@ if __name__ == '__main__':
     validate = theano.function(
         inputs=[input_batch, label_batch],
         outputs=[testing_output_batch, validation_loss_batch])
+    validate_accuracy = theano.function(
+        inputs=[input_batch, label_batch],
+        outputs=[testing_output_batch, validation_accuracy_batch])
     
     # Reset leftover stuff from earlier runs. 
     
@@ -90,11 +97,13 @@ if __name__ == '__main__':
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,
+                           validate_accuracy=validate_accuracy,
                            pretrain=True,
                            learning_rate=learning_rate)
     
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,
+                           validate_accuracy=validate_accuracy,
                            pretrain=False,
                            learning_rate=learning_rate)
