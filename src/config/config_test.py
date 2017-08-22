@@ -12,11 +12,10 @@ class TestConfig(unittest.TestCase):
         test_file = open(cls.xml_test_file, 'w')
         test_file.write('<?xml version="1.0"?>'
                    '<config>'
-                   '<int_param type="int">12</int_param>'
-                   '<float_param type="float">12.25</float_param>'
-                   '<str_param type="str">string</str_param>'
-                   '<no_type_param>string</no_type_param>'
-                   '<bad_type_param type="bad">string</bad_type_param>'
+                   '<int_param>12</int_param>'
+                   '<float_param>12.25</float_param>'
+                   '<str_param>"string"</str_param>'
+                   '<complicated>{"dict": "dict"}</complicated>'
                    '</config>')
         test_file.close()
     
@@ -30,8 +29,7 @@ class TestConfig(unittest.TestCase):
             'int_param': 12,
             'float_param': 12.25,
             'str_param': 'string',
-            'no_type_param': 'string',
-            'bad_type_param': 'string'
+            'complicated': {'dict': 'dict'}
         }
         self.assertDictEqual(expected_dict, config_params)
         self.assertEqual(None, config_params['nonexistant_param'])

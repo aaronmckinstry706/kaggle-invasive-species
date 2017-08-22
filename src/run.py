@@ -70,10 +70,7 @@ if __name__ == '__main__':
         updates=network_updates)
     validate = theano.function(
         inputs=[input_batch, label_batch],
-        outputs=[testing_output_batch, validation_loss_batch])
-    validate_accuracy = theano.function(
-        inputs=[input_batch, label_batch],
-        outputs=[testing_output_batch, validation_accuracy_batch])
+        outputs=[testing_output_batch, validation_loss_batch, validation_accuracy_batch])
     
     # Reset leftover stuff from earlier runs. 
     
@@ -97,13 +94,11 @@ if __name__ == '__main__':
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,
-                           validate_accuracy=validate_accuracy,
                            pretrain=True,
                            learning_rate=learning_rate)
     
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,
-                           validate_accuracy=validate_accuracy,
                            pretrain=False,
                            learning_rate=learning_rate)

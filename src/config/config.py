@@ -7,24 +7,19 @@ def read_param_xml_file(file_path):
     follows (or should be empty/not exist):
         <?xml version="1.0"?>
         <params>
-            <param1 type="type_conversion_function1">value1</param1>
+            <param1>expr1</param1>
             ...
-            <paramN type="type_conversion_functionN">valueN</paramN>
+            <paramN>exprN</paramN>
         </params>
-    The parameter names param1, ..., paramN must be distinct. Each type must be
-    one of "int", "float", or "str". If a parameter element does not have a type
-    attribute, or the type attribute is neither "int" nor "float" nor "str",
-    then the type attribute is assumed to be "str".
+    The parameter names param1, ..., paramN must be distinct. Each expression expr1, ..., exprN
+    must be a Python expression that results in some value. 
     
-    The resulting dictionary of parameters is defined by calling the appropriate
-    type casting function on the text within the param element. It is equivalent
-    to the below definition--except for invalid type_conversion_function values,
-    which are handled as described above. 
+    The resulting dictionary of parameters is defined as follows:
         collections.defaultdict(
             lambda: None,
-            {"param1": type_conversion_function1("value1"),
+            {"param1": eval("value1"),
              ...,
-             "paramN": type_conversion_functionN("valueN")})
+             "paramN": eval("valueN")})
     
     Arguments:
     file_path -- the location of the param file (relative or absolute). 
@@ -36,13 +31,5 @@ def read_param_xml_file(file_path):
     tree = ElementTree.parse(file_path)
     root = tree.getroot()
     
-    type_cast_functions = collections.defaultdict(
-        lambda: str,
-        {'int': int, 'float': float})
-    
-    params = {}
-    for child in root:
-        param_type = child.attrib.get('type') or 'str'
-        type_cast = type_cast_functions[param_type]
-        params[child.tag] = type_cast(child.text)
+    params = {child.tag: eval(child.text) for child in root}
     return collections.defaultdict(lambda: None, params)

@@ -10,7 +10,7 @@ import imgload.generators as generators
 import utilities as utils
 
 # TODO: Add (...network, best_network) as parameters; store best network params.
-def train_network(metaparams, train, validate, validate_accuracy, pretrain, learning_rate):
+def train_network(metaparams, train, validate, pretrain, learning_rate):
     """Takes in a parameter dict, a training function, and a validation function
     and then trains the network. 
     
@@ -28,8 +28,6 @@ def train_network(metaparams, train, validate, validate_accuracy, pretrain, lear
                  This callable is what actually trains the network. 
         
         validate -- A callable that takes the same inputs as the train function. 
-        
-        validate_accuracy -- A callable that takes the same inputs as the train function.
         
         pretrain -- If this is meant to pretrain a network, True. Otherwise, False. 
         
@@ -73,11 +71,7 @@ def train_network(metaparams, train, validate, validate_accuracy, pretrain, lear
     iteration = 0
     epoch = 0
     while epoch < metaparams['epochs']:
-        # Taking from https://github.com/Lasagne/Recipes/blob/master/papers/densenet/train_test.py,
-        # we will divide learning rate by 10 at 50% and 75% through the total number of epochs.
-        if epoch == int(0.5*metaparams['epochs']):
-            learning_rate.set_value(numpy.float32(learning_rate.get_value()/10.0))
-        elif epoch == int(0.75*metaparams['epochs']):
+        if epoch in metaparams['learning_schedule']:
             learning_rate.set_value(numpy.float32(learning_rate.get_value()/10.0))
         
         epoch_start_time = time.time()
@@ -120,11 +114,10 @@ def train_network(metaparams, train, validate, validate_accuracy, pretrain, lear
         current_validation_accuracy = 0.0
         example_count = 0.0
         for images_labels in threaded_validation_generator:
-            outputs, validation_accuracy = validate_accuracy(numpy.moveaxis(images_labels[0], 3, 1),
-                                                             images_labels[1])
+            outputs, validation_loss, validation_accuracy = validate(
+                numpy.moveaxis(images_labels[0], 3, 1),
+                images_labels[1])
             current_validation_accuracy += validation_accuracy
-            outputs, validation_loss = validate(numpy.moveaxis(images_labels[0], 3, 1),
-                                                images_labels[1])
             current_validation_loss += numpy.sum(validation_loss)
             example_count += images_labels[0].shape[0]
         current_validation_loss = current_validation_loss / example_count
