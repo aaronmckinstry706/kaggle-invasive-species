@@ -14,6 +14,8 @@ def all_cnn_c_model(input_var):
     
     network = layers.InputLayer(input_var=input_var, shape=(None, 3, 32, 32))
     
+#    network = layers.dropout(incoming=network, p=0.2)
+    
     network = layers.batch_norm(
         layers.Conv2DLayer(
             incoming=network, num_filters=96, filter_size=3, pad='same', W=he_normal))
@@ -23,6 +25,8 @@ def all_cnn_c_model(input_var):
     network = layers.batch_norm(
         layers.Conv2DLayer(incoming=network, num_filters=96, filter_size=3, pad='same',
                            stride=(2, 2), W=he_normal))
+    
+#    network = layers.dropout(incoming=network, p=0.5)
     
     network = layers.batch_norm(
         layers.Conv2DLayer(
@@ -34,6 +38,8 @@ def all_cnn_c_model(input_var):
         layers.Conv2DLayer(
             incoming=network, num_filters=192, filter_size=3, pad='same', stride=(2, 2),
             W=he_normal))
+    
+#    network = layers.dropout(incoming=network, p=0.5)
     
     network = layers.batch_norm(
         layers.Conv2DLayer(incoming=network, num_filters=192, filter_size=3, pad='same', W=he_normal))

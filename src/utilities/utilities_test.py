@@ -43,9 +43,10 @@ class UtilitiesTest_FileMovers(unittest.TestCase):
             os.system("mv " + source_path + " " + destination_path)
     
     def test_randomly_divide_pretraining_data(self):
+        self.undo_pretraining_division()
         original_file_names = set(
             [path.basename(p) for p in utils.get_absolute_paths(self.pretrain_src_directory)])
-        utils.randomly_divide_pretraining_data(self.pretrain_src_directory, self.pretrain_directory)
+        utils.randomly_divide_pretraining_data(self.pretrain_src_directory, self.pretrain_directory, 3)
         actual_file_names = set(
             [path.basename(p) for p in utils.get_absolute_paths(self.pretrain_directory)])
         self.assertSetEqual(original_file_names, actual_file_names)

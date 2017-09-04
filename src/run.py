@@ -75,7 +75,9 @@ if __name__ == '__main__':
     # Reset leftover stuff from earlier runs. 
     
     logging.info('Assigning random labels to pretraining data.')
-    utils.randomly_divide_pretraining_data(defs.PRETRAINING_SOURCE_DIR, defs.PRETRAINING_DATA_DIR)
+    utils.randomly_divide_pretraining_data(defs.PRETRAINING_SOURCE_DIR,
+                                           defs.PRETRAINING_DATA_DIR,
+                                           num_classes=10)
     
     logging.info('Cleaning up training/validation splits from previous runs.')
     utils.recombine_validation_and_training(defs.VALIDATION_DATA_DIR,
@@ -97,6 +99,7 @@ if __name__ == '__main__':
                            pretrain=True,
                            learning_rate=learning_rate)
     
+    metaparams['learning_schedule'] = [i + 30 for i in metaparams['learning_schedule']]
     training.train_network(metaparams=metaparams,
                            train=train,
                            validate=validate,

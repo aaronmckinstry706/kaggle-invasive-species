@@ -5,6 +5,8 @@ import random
 import matplotlib.pyplot as pyplot
 import numpy
 
+import definitions as defs
+
 def display_history(training_loss_history, validation_loss_history, validation_accuracy_history,
                     gradient_history, variance_window=20, recent_window=100):
     NUM_PLOT_ROWS = 3
@@ -149,21 +151,21 @@ def get_absolute_paths(root_directory):
         file_paths.extend(valid_file_paths)
     return file_paths
 
-def randomly_divide_pretraining_data(src_dir, destination_dir):
+def randomly_divide_pretraining_data(src_dir, destination_dir, num_classes):
     """Takes the pretraining data and copies it into two different directories:
     project_root/data/pretraining/0, and project_root/data/pretraining/1. Each
     image is randomly put into one of the two directories. 
     """
     src_dir = path.abspath(src_dir)
     destination_dir = path.abspath(destination_dir)
-    for subdir in ['0', '1']:
+    for subdir in [str(i) for i in range(num_classes)]:
         subdir_path = destination_dir + '/' + subdir
         if not path.exists(subdir_path):
             os.makedirs(subdir_path)
     for image_path in get_absolute_paths(src_dir):
         image_name = path.basename(image_path)
         destination_image_path = (destination_dir + "/"
-                                  + str(random.randint(0, 1)) + "/"
+                                  + str(random.randint(0, num_classes - 1)) + "/"
                                   + image_name)
         os.system("mv " + image_path + " " + destination_image_path)
 
@@ -195,4 +197,4 @@ def recombine_validation_and_training(validation_dir, training_dir):
                   + image_path.replace(validation_dir, training_dir))
 
 if __name__ == '__main__':
-    recombine_validation_and_training('data/validation', 'data/train')
+    recombine_validation_and_training(defs.VALIDATION_DATA_DIR, defs.TRAINING_DATA_DIR)

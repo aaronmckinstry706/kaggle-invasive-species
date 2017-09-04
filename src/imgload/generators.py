@@ -16,6 +16,8 @@ def get_training_generator(directory, desired_width, batch_size):
 #        rotation_range=15.0,
 #        zoom_range=[1.0, math.sqrt(2)*math.cos(math.pi/4 - 15.0/180.0*math.pi)],
         horizontal_flip=True)
+#        width_shift_range=5,
+#        height_shift_range=5,
 #        vertical_flip=True,
 #        preprocessing_function=aug.resize_and_random_crop(desired_width))
     return training_generator.flow_from_directory(
